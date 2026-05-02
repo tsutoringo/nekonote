@@ -15,4 +15,11 @@ pub enum NekonoteError {
     DecodeGitHubAppKeyError(#[source] base64::DecodeError),
     #[error("Failed to encode GitHub app_key.")]
     EncodeGitHubAppKeyError(#[source] jsonwebtoken::errors::Error),
+
+    #[error("Failed to read Google Calendar service account key.")]
+    GoogleCalendarServiceAccountKeyReadError(#[source] std::io::Error),
+    #[error("Failed to load native TLS roots for Google Calendar client.")]
+    GoogleCalendarNativeRootsError(#[source] std::io::Error),
+    #[error("Failed to build Google Calendar authenticator.")]
+    GoogleCalendarAuthBuildError(#[source] std::io::Error),
 }

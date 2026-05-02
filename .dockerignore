@@ -1,0 +1,10 @@
+.git
+.gitignore
+target
+Dockerfile
+.dockerignore
+config.toml
+*.pem
+*.key
+*service-account*.json
+*credentials*.json

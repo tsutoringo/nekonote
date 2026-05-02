@@ -22,6 +22,24 @@ git clone http://127.0.0.1:19502/github/repos/OWNER/REPO.git
 
 Repository access is intentionally delegated to the GitHub App installation permissions.
 
+### Google Calendar
+
+Google Calendar support is mounted under `/google-calendar/mcp` and uses Service Account key
+authentication. It only accesses calendars that have been explicitly shared with the service
+account email.
+
+Implemented MCP tools:
+
+| Tool | Purpose |
+| --- | --- |
+| `calendar_get` | Get metadata for a shared calendar |
+| `event_list` | List events in a shared calendar |
+| `event_get` | Get one event |
+| `event_create` | Create an event |
+| `event_update` | Patch an event |
+| `event_delete` | Delete an event |
+| `freebusy_query` | Query busy blocks |
+
 ## Configuration
 
 Configuration is loaded from `config.toml` and can be overridden with environment variables using the `NEKONOTE__` prefix and `__` separators.
@@ -38,6 +56,10 @@ installation_id = 12345678
 app_key = "BASE64_ENCODED_RSA_PRIVATE_KEY_PEM"
 # Optional. Defaults to https://api.githubcopilot.com/mcp/
 mcp_endpoint = "https://api.githubcopilot.com/mcp/"
+
+[provider.google_calendar.auth]
+type = "service_account"
+key_path = "/path/to/service-account-key.json"
 ```
 
 Environment variable equivalents:
@@ -47,6 +69,8 @@ export NEKONOTE__SERVER__ADDR=0.0.0.0:19502
 export NEKONOTE__PROVIDER__GITHUB__APP_ID=123456
 export NEKONOTE__PROVIDER__GITHUB__INSTALLATION_ID=12345678
 export NEKONOTE__PROVIDER__GITHUB__APP_KEY=BASE64_ENCODED_RSA_PRIVATE_KEY_PEM
+export NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__TYPE=service_account
+export NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__KEY_PATH=/path/to/service-account-key.json
 ```
 
 `provider.github.app_key` is expected to be the base64 encoding of the GitHub App RSA private key PEM.
@@ -57,21 +81,22 @@ export NEKONOTE__PROVIDER__GITHUB__APP_KEY=BASE64_ENCODED_RSA_PRIVATE_KEY_PEM
 cargo run
 ```
 
+Docker:
+
+```bash
+docker build -f Dockerfile -t nekonote:local .
+docker run --rm -p 19502:19502 \
+  -e NEKONOTE__SERVER__ADDR=0.0.0.0:19502 \
+  -e NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__TYPE=service_account \
+  -e NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__KEY_PATH=/run/secrets/google-calendar.json \
+  -v /path/to/service-account-key.json:/run/secrets/google-calendar.json:ro \
+  nekonote:local
+```
+
 Health check:
 
 ```bash
 curl http://127.0.0.1:19502/healthz
-```
-
-GitHub MCP smoke test:
-
-```bash
-curl -i -N \
-  -X POST http://127.0.0.1:19502/github/mcp \
-  -H 'content-type: application/json' \
-  -H 'accept: application/json, text/event-stream' \
-  -H 'mcp-protocol-version: 2025-06-18' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"nekonote-smoke","version":"0.1.0"}}}'
 ```
 
 ## Provider Model
@@ -104,34 +129,3 @@ provider.<name> config
 ```
 
 This keeps provider credentials, token acquisition, and route behavior isolated while sharing the application-level HTTP client and error handling style.
-
-## Proxy Rules
-
-Proxy handlers should preserve streaming in both directions:
-
-- Request bodies should be forwarded as streams.
-- Upstream response bodies should be returned as streams.
-- Hop-by-hop headers must not be forwarded.
-- Client-supplied `Authorization` should not be forwarded when the provider injects server-side credentials.
-
-Current forwarded request headers are intentionally allowlisted:
-
-- `accept`
-- `content-type`
-- `user-agent`
-- MCP headers: `mcp-session-id`, `mcp-protocol-version`, `last-event-id`
-- Git header: `git-protocol`
-
-## Verification
-
-```bash
-cargo fmt --check
-cargo check
-```
-
-GitHub repos proxy:
-
-```bash
-git ls-remote http://127.0.0.1:19502/github/repos/OWNER/REPO.git
-git clone --depth 1 http://127.0.0.1:19502/github/repos/OWNER/REPO.git /tmp/nekonote-clone-test
-```

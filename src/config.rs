@@ -33,6 +33,7 @@ pub struct ServerConfig {
 #[derive(Debug, Deserialize)]
 pub struct ProviderConfig {
     pub github: Option<GitHubConfig>,
+    pub google_calendar: Option<GoogleCalendarConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -42,4 +43,15 @@ pub struct GitHubConfig {
     pub installation_id: u64,
 
     pub mcp_endpoint: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GoogleCalendarConfig {
+    pub auth: GoogleCalendarAuthConfig,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum GoogleCalendarAuthConfig {
+    ServiceAccount { key_path: String },
 }
