@@ -49,6 +49,9 @@ Minimal example:
 ```toml
 [server]
 addr = "0.0.0.0:19502"
+# Optional. Hostnames or host:port authorities accepted by Streamable HTTP MCP services.
+# rmcp defaults to loopback-only Host validation, so include the externally used service name.
+allowed_hosts = ["localhost", "127.0.0.1", "nekonote.moltis.svc.cluster.local"]
 
 [provider.github]
 app_id = 123456
@@ -66,6 +69,7 @@ Environment variable equivalents:
 
 ```bash
 export NEKONOTE__SERVER__ADDR=0.0.0.0:19502
+export NEKONOTE__SERVER__ALLOWED_HOSTS=localhost,127.0.0.1,nekonote.moltis.svc.cluster.local
 export NEKONOTE__PROVIDER__GITHUB__APP_ID=123456
 export NEKONOTE__PROVIDER__GITHUB__INSTALLATION_ID=12345678
 export NEKONOTE__PROVIDER__GITHUB__APP_KEY=BASE64_ENCODED_RSA_PRIVATE_KEY_PEM
@@ -87,6 +91,7 @@ Docker:
 docker build -f Dockerfile -t nekonote:local .
 docker run --rm -p 19502:19502 \
   -e NEKONOTE__SERVER__ADDR=0.0.0.0:19502 \
+  -e NEKONOTE__SERVER__ALLOWED_HOSTS=localhost,127.0.0.1,nekonote.moltis.svc.cluster.local \
   -e NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__TYPE=service_account \
   -e NEKONOTE__PROVIDER__GOOGLE_CALENDAR__AUTH__KEY_PATH=/run/secrets/google-calendar.json \
   -v /path/to/service-account-key.json:/run/secrets/google-calendar.json:ro \

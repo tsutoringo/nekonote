@@ -15,6 +15,7 @@ pub(crate) use google_calendar::GoogleCalendarState;
 pub(crate) struct AppState {
     pub providers: ProviderState,
     pub client: Client,
+    pub allowed_hosts: Vec<String>,
 }
 
 impl AppState {
@@ -25,7 +26,11 @@ impl AppState {
             .build()
             .map_err(NekonoteError::ReqwestClientBuildError)?;
 
-        Ok(AppState { providers, client })
+        Ok(AppState {
+            providers,
+            client,
+            allowed_hosts: config.server.allowed_hosts.clone(),
+        })
     }
 }
 
