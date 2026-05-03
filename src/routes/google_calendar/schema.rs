@@ -2,12 +2,14 @@ use rmcp::schemars;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct CalendarGetRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventListRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
@@ -47,6 +49,7 @@ pub struct EventListRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventGetRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
@@ -56,6 +59,7 @@ pub struct EventGetRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventCreateRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
@@ -76,6 +80,7 @@ pub struct EventCreateRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventUpdateRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
@@ -99,6 +104,7 @@ pub struct EventUpdateRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventDeleteRequest {
     #[schemars(description = "Calendar ID shared with the service account.")]
     pub calendar_id: String,
@@ -113,6 +119,7 @@ pub struct EventDeleteRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct FreeBusyQueryRequest {
     #[schemars(description = "Calendar IDs shared with the service account.")]
     pub calendar_ids: Vec<String>,
@@ -128,6 +135,7 @@ pub struct FreeBusyQueryRequest {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventInput {
     pub summary: Option<String>,
     pub description: Option<String>,
@@ -140,6 +148,7 @@ pub struct EventInput {
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct EventDateTimeInput {
     #[schemars(description = "RFC3339 date-time, for example 2026-05-01T09:00:00+09:00.")]
     pub date_time: Option<String>,
