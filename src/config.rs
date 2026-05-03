@@ -14,7 +14,14 @@ impl Config {
     pub fn load() -> Result<Self, NekonoteError> {
         let config = config::Config::builder()
             .add_source(config::File::with_name("config").required(false))
-            .add_source(config::Environment::with_prefix("NEKONOTE").separator("__"))
+            .add_source(
+                config::Environment::with_prefix("NEKONOTE")
+                    .separator("__")
+                    .try_parsing(true)
+                    .list_separator(",")
+                    .with_list_parse_key("server.allowed_hosts"),
+            )
+            .set_default("server.allowed_hosts", Vec::<String>::new())?
             .set_default(
                 "provider.github.mcp_endpoint",
                 "https://api.githubcopilot.com/mcp/",
@@ -28,6 +35,8 @@ impl Config {
 #[derive(Debug, Deserialize)]
 pub struct ServerConfig {
     pub addr: SocketAddr,
+    #[serde(default)]
+    pub allowed_hosts: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]

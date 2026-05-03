@@ -6,7 +6,8 @@ use rmcp::{
     model::{Implementation, ServerCapabilities, ServerInfo},
     tool_handler,
     transport::{
-        StreamableHttpService, streamable_http_server::session::local::LocalSessionManager,
+        StreamableHttpServerConfig, StreamableHttpService,
+        streamable_http_server::session::local::LocalSessionManager,
     },
 };
 
@@ -19,10 +20,15 @@ mod tools;
 
 pub fn routes(state: Arc<AppState>) -> axum::Router<Arc<AppState>> {
     let google_calendar = state.providers.google_calendar.clone();
+    let mcp_config = if state.allowed_hosts.is_empty() {
+        StreamableHttpServerConfig::default()
+    } else {
+        StreamableHttpServerConfig::default().with_allowed_hosts(state.allowed_hosts.clone())
+    };
     let mcp = StreamableHttpService::new(
         move || Ok(GoogleCalendarMcp::new(google_calendar.clone())),
         LocalSessionManager::default().into(),
-        Default::default(),
+        mcp_config,
     );
 
     axum::Router::new().nest_service("/mcp", mcp)
